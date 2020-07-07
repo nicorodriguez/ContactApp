@@ -30,6 +30,28 @@ namespace ContactApp.Model.Mappers
             return contactDTO;
         }
 
+        public static Contact MapFromDTO(this ContactDTO contactDTO)
+        {
+            var contact = new Contact()
+            {
+                ContactId = contactDTO.ContactId,
+                ProfileId = contactDTO.ProfileId,
+                Name =      contactDTO.Name,
+                Company =   contactDTO.Company,
+                Image =     contactDTO.Image,
+                Email =     contactDTO.Email,
+                Birthdate = contactDTO.Birthdate,
+                WorkNumber = contactDTO.WorkNumber,
+                PersonalNumber = contactDTO.PersonalNumber,
+                Address =   contactDTO.Address,
+                City =      contactDTO.City,
+                State =     contactDTO.State,
+                Profile =   null
+            };
+
+            return contact;
+        }
+
         public static Contact MapFromDTO(this ContactDTO contactDTO, Profile profile)
         {
             var contact = new Contact()

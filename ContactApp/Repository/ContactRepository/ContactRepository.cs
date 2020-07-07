@@ -18,5 +18,13 @@ namespace ContactApp.Repository.ContactRepository
                                 .Include(x => x.Profile)
                                 .ToListAsync();
         }
+
+        public override async Task<Contact> GetById(int id)
+        {
+            return await _context.Contact
+                                .Where(c => c.ContactId == id)
+                                .Include(x => x.Profile)
+                                .SingleOrDefaultAsync();
+        }
     }
 }

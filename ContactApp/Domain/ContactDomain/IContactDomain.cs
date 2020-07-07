@@ -12,5 +12,7 @@ namespace ContactApp.Domain.ContactDomain
     public interface IContactDomain
     {
         Task<CommandResponse<IEnumerable<ContactDTO>>> GetAll();
+        Task<CommandResponse<ContactDTO>> GetById(int id);
+        Task<CommandResponse> Create(ContactDTO contactDTO);
     }
 }
