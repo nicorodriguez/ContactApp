@@ -13,6 +13,11 @@ namespace ContactApp.Domain.ContactDomain
     {
         Task<CommandResponse<IEnumerable<ContactDTO>>> GetAll();
         Task<CommandResponse<ContactDTO>> GetById(int id);
+        Task<CommandResponse<IEnumerable<ContactDTO>>> GetByEmailOrPhoneNumber(string search);
+        Task<CommandResponse<IEnumerable<ContactDTO>>> GetByCity(string search);
+        Task<CommandResponse<IEnumerable<ContactDTO>>> GetByState(string search);
         Task<CommandResponse> Create(ContactDTO contactDTO);
+        Task<CommandResponse> Update(ContactDTO contactDTO);
+        Task<CommandResponse> Delete(int id);
     }
 }

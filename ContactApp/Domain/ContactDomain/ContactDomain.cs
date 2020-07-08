@@ -68,6 +68,60 @@ namespace ContactApp.Domain.ContactDomain
             return result;
         }
 
+        public async Task<CommandResponse<IEnumerable<ContactDTO>>> GetByEmailOrPhoneNumber(string search)
+        {
+            var result = new CommandResponse<IEnumerable<ContactDTO>>() { Result = null };
+
+            try
+            {
+                result.Result = (await _contactRepository.GetByEmailOrPhoneNumber(search)).Select(x => x.MapToDTO()).ToList();
+                result.IsSuccessful = true;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessages = result.ErrorMessages.Concat(new[] { "Error: " + e.ToString() });
+            }
+
+            return result;
+        }
+
+        public async Task<CommandResponse<IEnumerable<ContactDTO>>> GetByCity(string search)
+        {
+            var result = new CommandResponse<IEnumerable<ContactDTO>>() { Result = null };
+
+            try
+            {
+                result.Result = (await _contactRepository.GetByCity(search)).Select(x => x.MapToDTO()).ToList();
+                result.IsSuccessful = true;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessages = result.ErrorMessages.Concat(new[] { "Error: " + e.ToString() });
+            }
+
+            return result;
+        }
+
+        public async Task<CommandResponse<IEnumerable<ContactDTO>>> GetByState(string search)
+        {
+            var result = new CommandResponse<IEnumerable<ContactDTO>>() { Result = null };
+
+            try
+            {
+                result.Result = (await _contactRepository.GetByState(search)).Select(x => x.MapToDTO()).ToList();
+                result.IsSuccessful = true;
+            }
+            catch (Exception e)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessages = result.ErrorMessages.Concat(new[] { "Error: " + e.ToString() });
+            }
+
+            return result;
+        }
+
         public async Task<CommandResponse> Create(ContactDTO contactDTO)
         {
             var result = new CommandResponse();
@@ -76,24 +130,76 @@ namespace ContactApp.Domain.ContactDomain
             {
                 var contact = contactDTO.MapFromDTO();
 
-                var existsContactName = _contactRepository.Exists(e => e.Name.Equals(contact.Name));
+                var validator = new ContactValidator(_contactRepository, _profileRepository);
+                var validationResult = validator.Validate(contact);
 
-                var existsProfileId = _profileRepository.Exists(e => e.ProfileId.Equals(contact.ProfileId));
-
-                if (!existsContactName && existsProfileId)
+                if (validationResult.IsValid)
                 {
                     await _contactRepository.Create(contact);
+
                     result.IsSuccessful = true;
                 }
                 else
                 {
-                    result.IsSuccessful = false;
+                    result.ErrorMessages = validationResult.Errors.Select(x => x.MapToJSON());
+                }
+            }
+            catch (Exception e)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessages = result.ErrorMessages.Concat(new[] { "Error: " + e.ToString() });
+            }
 
-                    if (existsContactName)
-                        result.ErrorMessages = result.ErrorMessages.Concat(new[] { "Error: " + "Contact has already been created" });
+            return result;
+        }
 
-                    if (!existsProfileId)
-                        result.ErrorMessages = result.ErrorMessages.Concat(new[] { "Error: " + "ProfileId does not exists or was deleted" });
+        public async Task<CommandResponse> Update(ContactDTO contactDTO)
+        {
+            var result = new CommandResponse();
+
+            try
+            {
+                var contact = contactDTO.MapFromDTO();
+
+                var validator = new ContactValidator(_contactRepository, _profileRepository);
+                var validationResult = validator.Validate(contact);
+
+                if (validationResult.IsValid)
+                {
+                    await _contactRepository.Create(contact);
+
+                    result.IsSuccessful = true;
+                }
+                else
+                {
+                    result.ErrorMessages = validationResult.Errors.Select(x => x.MapToJSON());
+                }
+            }
+            catch (Exception e)
+            {
+                result.IsSuccessful = false;
+                result.ErrorMessages = result.ErrorMessages.Concat(new[] { "Error: " + e.ToString() });
+            }
+
+            return result;
+        }
+
+        public async Task<CommandResponse> Delete(int id)
+        {
+            var result = new CommandResponse();
+
+            try
+            {
+                var contact = await _contactRepository.GetById(id);
+
+                if (contact != null)
+                {
+                    await _contactRepository.Delete(contact);
+                    result.IsSuccessful = true;
+                }
+                else
+                {
+                    result.ErrorMessages = result.ErrorMessages.Concat(new[] { "Error: " + "Contact was not found or was deleted" });
                 }
             }
             catch (Exception e)
